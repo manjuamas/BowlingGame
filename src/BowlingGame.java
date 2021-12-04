@@ -1,186 +1,95 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class BowlingGame {
 
-    public static void main(String[] args) {
+    //How may frames are there in a single match
+    int totalFrames;
 
-        scoreWhenPlayerDidNotScoreAStrikeOrSpare();
-        scoreWhenPlayerScoredAStrike();
-        scoreWhenPlayerScoredASpare();
-        scoreWhenPlayerStrikesInAllAttempts();
-        scoreWhenPlayerStrikesInAllAttemptsAndGetsTwoExtraAttempts();
-        scoreWhenPlayerScoresASpareInLastFrameAndGetsAnExtraAttempt();
-        scoreWhenPlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch();
-        scoreWhenPlayerHitsFewStrikesAndSpares();
+    //Total pins player gets to knock down in a frame
+    int pinsInAFrame;
 
+    //Maximum attempts if the player never scored a strike in the entire match
+    int maximumAttempts;
+
+    List<Integer> attempts;
+    List<Frame> frames;
+    int gameScore;
+
+    //Lets you customize a match with number of frames and number of pins in a frame.
+    // Wasn't a requirement for this game, but I thought it would be cool to implement it.
+    public BowlingGame(int totalFrames, int pinsInAFrame) {
+        gameScore = 0;
+        this.pinsInAFrame = pinsInAFrame;
+        this.totalFrames = totalFrames;
+        this.maximumAttempts = totalFrames * pinsInAFrame;
+        this.attempts = new ArrayList<>();
+        this.frames = new ArrayList<>();
     }
 
-    //Scenario 1: Basic test to find out the score after 2 frames are played.
-    public static void scoreWhenPlayerDidNotScoreAStrikeOrSpare() {
+    public void roll(int noOfPins) {
 
-        Match match = new Match(10, 10);
+        // Player shouldn't be able to roll if all attempts have been attempted.
+        // That is, even if the player keeps playing after all the attempts are attempted,those will not be calculated for the final score.
+        if (attempts.size() == maximumAttempts) {
+            return;
+        }
 
-        match.roll(4);
-        match.roll(3);
-        match.roll(1);
-        match.roll(6);
+        //In a case of a strike roll count should reduce by one, how can you knock down more pins if there are no pins to knock down!
+        if (noOfPins == pinsInAFrame) {
+            maximumAttempts = maximumAttempts - 1;
+        }
 
-        System.out.println("Expected score when the player didn't score a strike or a spare is = 14");
-        System.out.println("Actual score when the player didn't score a strike or a spare is = " + match.score() + "\n");
+        //Keep storing player's score attempts
+        attempts.add(noOfPins);
     }
 
-    //Scenario 2: Basic test to find out the score after player scores a Strike in the first frame.
-    public static void scoreWhenPlayerScoredAStrike() {
+    public List<Frame> generateFrames() {
 
-        Match match = new Match(10, 10);
+        //Travers through all the attempts and generate the frames.
+        //Even though we limit the player not to play more when all the attempts are played in roll(),
+        // this method too adds a validation by checking if the total frame count doesn't exceed so the number of frames for the match is as expected
+        for (int i = 0; i < attempts.size() && frames.size() < totalFrames; i++) {
 
-        match.roll(10);
-        match.roll(3);
-        match.roll(1);
+            Frame frame = new Frame(pinsInAFrame, frames.size() + 1);
+            frame.pinsFirstAttempt = setScore(i);
 
-        System.out.println("Expected score when the player scored a strike is = 18");
-        System.out.println("Actual score when the player scored a strike is = " + match.score() + "\n");
+            if (frame.isAStrike()) {
+                frame.extra1 = setScore(i + 1);
+                frame.extra2 = setScore(i + 2);
+            } else {
+                frame.pinsSecondAttempt = setScore(i + 1);
+                if (frame.isASpare()) {
+                    frame.extra1 = setScore(i + 2);
+                }
+                //Except for a strike, the next frame should always start after 2 attempts
+                i = i + 1;
+            }
+            frame.calculateFrameScore();
+            frames.add(frame);
+        }
+
+        return frames;
     }
 
-    //Scenario 3: Basic test to find out the score after player scores a Spare in the first frame.
-    public static void scoreWhenPlayerScoredASpare() {
+    public int score() {
+        gameScore = 0;
+        generateFrames();
 
-        Match match = new Match(10, 10);
-
-        match.roll(6);
-        match.roll(4);
-        match.roll(1);
-        match.roll(7);
-
-        System.out.println("Expected score when the player scored a spare is = 19");
-        System.out.println("Actual score when the player scored a spare is = " + match.score() + "\n");
+        for (Frame frame : frames) {
+            frame.printFrame();
+            gameScore = gameScore + frame.score;
+        }
+        return gameScore;
     }
 
-    //Scenario 4: Last frame with a Strike and 2 extras with all strikes.
-    public static void scoreWhenPlayerStrikesInAllAttempts() {
+    public int setScore(int attempt) {
 
-        Match match = new Match(10, 10);
-
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-
-        //Since the player score a strike he gets 2 more rolls, he scores strike for each of them.
-        match.roll(10);
-        match.roll(10);
-
-        System.out.println("Expected score when the player strikes in all attempts is = 300");
-        System.out.println("Actual score when the player strikes in all attempts is = " + match.score() + "\n");
+        //Just so you don't get an IndexOutOfBoundsException if the player doesn't want to attempt extras after a strike or a Spare
+        if (attempts != null && attempt < attempts.size()) {
+            return attempts.get(attempt);
+        }
+        return 0;
     }
 
-    //Scenario 5: Last frame with a Strike and 2 extras attempts.
-    public static void scoreWhenPlayerStrikesInAllAttemptsAndGetsTwoExtraAttempts() {
-
-        Match match = new Match(10, 10);
-
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-
-        //Since the player score a strike he gets 2 more rolls, but he didn't score a strike for the last 2 rolls.
-        match.roll(4);
-        match.roll(6);
-
-        System.out.println("Expected score when the player strikes in all attempts except the last 2 extra attempts is = 284");
-        System.out.println("Actual score when the player strikes in all attempts except the last 2 extra attempts is = " + match.score() + "\n");
-    }
-
-    //Scenario 6: Last frame with a Spare and 1 extra bowl.
-    public static void scoreWhenPlayerScoresASpareInLastFrameAndGetsAnExtraAttempt() {
-        Match match = new Match(10, 10);
-
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(10);
-        match.roll(9);
-        match.roll(1);
-
-        //Since the player score a spare he gets 1 roll.
-        match.roll(4);
-
-        System.out.println("Expected score when the player scores a spare in the last frame and gets an extra attempt is = 273");
-        System.out.println("Actual score when the player scores a spare in the last frame and gets an extra attempt is = " + match.score() + "\n");
-    }
-
-    //Scenario 7: Match of 10 frames with no Spares and Strikes.
-    public static void scoreWhenPlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch() {
-
-        Match match = new Match(10, 10);
-
-        match.roll(2);
-        match.roll(1);
-        match.roll(3);
-        match.roll(5);
-        match.roll(7);
-        match.roll(0);
-        match.roll(9);
-        match.roll(0);
-        match.roll(1);
-        match.roll(4);
-        match.roll(7);
-        match.roll(1);
-        match.roll(3);
-        match.roll(5);
-        match.roll(6);
-        match.roll(0);
-        match.roll(0);
-        match.roll(0);
-        match.roll(1);
-        match.roll(2);
-
-        System.out.println("Expected score when the player never got any spares or strikes during the entire match is = 57");
-        System.out.println("Actual score when the player never got any spares or strikes during the entire match is = " + match.score() + "\n");
-    }
-
-    //Scenario 8: Last frame not a Strike nor a Spare. But the match has a few Strikes and Spares in the other frames.
-    public static void scoreWhenPlayerHitsFewStrikesAndSpares() {
-
-        Match match = new Match(10, 10);
-
-        match.roll(2);
-        match.roll(6);
-        match.roll(10);
-        match.roll(3);
-        match.roll(5);
-        match.roll(7);
-        match.roll(3);
-        match.roll(9);
-        match.roll(1);
-        match.roll(3);
-        match.roll(1);
-        match.roll(10);
-        match.roll(0);
-        match.roll(4);
-        match.roll(1);
-        match.roll(3);
-        match.roll(4);
-        match.roll(4);
-
-        System.out.println("Expected score when the player hits a few Strikes and Spares is = 100");
-        System.out.println("Actual score when the player hits a few Strikes and Spares is = " + match.score() + "\n");
-
-    }
 }
