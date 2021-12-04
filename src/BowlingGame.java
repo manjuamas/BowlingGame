@@ -1,4 +1,5 @@
 public class BowlingGame {
+
     public static void main(String[] args) {
 
         scoreWhenPlayerDidNotScoreAStrikeOrSpare();
@@ -7,12 +8,12 @@ public class BowlingGame {
         scoreWhenPlayerStrikesInAllAttempts();
         scoreWhenPlayerStrikesInAllAttemptsAndGetsTwoExtraAttempts();
         scoreWhenPlayerScoresASpareInLastFrameAndGetsAnExtraAttempt();
-        scoreWhenThePlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch();
+        scoreWhenPlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch();
         scoreWhenPlayerHitsFewStrikesAndSpares();
 
     }
 
-    //Scenario: Basic test to find out score after 2 frames are played
+    //Scenario 1: Basic test to find out the score after 2 frames are played.
     public static void scoreWhenPlayerDidNotScoreAStrikeOrSpare() {
 
         Match match = new Match(10, 10);
@@ -23,10 +24,10 @@ public class BowlingGame {
         match.roll(6);
 
         System.out.println("Expected score when the player didn't score a strike or a spare is = 14");
-        System.out.println("Actual score when the player didn't score a strike or a spare is = " + match.score());
+        System.out.println("Actual score when the player didn't score a strike or a spare is = " + match.score() + "\n");
     }
 
-    //Scenario: Basic test to find out score after a player scores a strike in the first frame
+    //Scenario 2: Basic test to find out the score after player scores a Strike in the first frame.
     public static void scoreWhenPlayerScoredAStrike() {
 
         Match match = new Match(10, 10);
@@ -36,10 +37,10 @@ public class BowlingGame {
         match.roll(1);
 
         System.out.println("Expected score when the player scored a strike is = 18");
-        System.out.println("Actual score when the player scored a strike is = " + match.score());
+        System.out.println("Actual score when the player scored a strike is = " + match.score() + "\n");
     }
 
-    //Scenario: Basic test to find out score after a player scores a spare in the first frame
+    //Scenario 3: Basic test to find out the score after player scores a Spare in the first frame.
     public static void scoreWhenPlayerScoredASpare() {
 
         Match match = new Match(10, 10);
@@ -49,11 +50,11 @@ public class BowlingGame {
         match.roll(1);
         match.roll(7);
 
-        System.out.println("Expected score when the player scored a strike is = 19");
-        System.out.println("Actual score when the player scored a strike is = " + match.score());
+        System.out.println("Expected score when the player scored a spare is = 19");
+        System.out.println("Actual score when the player scored a spare is = " + match.score() + "\n");
     }
 
-    //Scenario: Last frame with a Strike and 2 extras all strikes.
+    //Scenario 4: Last frame with a Strike and 2 extras with all strikes.
     public static void scoreWhenPlayerStrikesInAllAttempts() {
 
         Match match = new Match(10, 10);
@@ -73,12 +74,11 @@ public class BowlingGame {
         match.roll(10);
         match.roll(10);
 
-        //If one has a strike for every roll, their score is 300
         System.out.println("Expected score when the player strikes in all attempts is = 300");
-        System.out.println("Actual score when the player strikes in all attempts is = " + match.score());
+        System.out.println("Actual score when the player strikes in all attempts is = " + match.score() + "\n");
     }
 
-    //Scenario: Last frame with a Strike and 2 extras strikes.
+    //Scenario 5: Last frame with a Strike and 2 extras attempts.
     public static void scoreWhenPlayerStrikesInAllAttemptsAndGetsTwoExtraAttempts() {
 
         Match match = new Match(10, 10);
@@ -99,13 +99,14 @@ public class BowlingGame {
         match.roll(6);
 
         System.out.println("Expected score when the player strikes in all attempts except the last 2 extra attempts is = 284");
-        System.out.println("Actual score when the player strikes in all attempts except the last 2 extra attempts is = " + match.score());
+        System.out.println("Actual score when the player strikes in all attempts except the last 2 extra attempts is = " + match.score() + "\n");
     }
 
-    //Scenario: Last frame with a Spare and 1 extra bowl.
+    //Scenario 6: Last frame with a Spare and 1 extra bowl.
     public static void scoreWhenPlayerScoresASpareInLastFrameAndGetsAnExtraAttempt() {
         Match match = new Match(10, 10);
 
+        match.roll(10);
         match.roll(10);
         match.roll(10);
         match.roll(10);
@@ -120,12 +121,12 @@ public class BowlingGame {
         //Since the player score a spare he gets 1 roll.
         match.roll(4);
 
-        System.out.println("Expected score when the player scores a Spare in the last frame and gets an extra attempt is = 247");
-        System.out.println("Actual sscore when the player scores a Spare in the last frame and gets an extra attempt is = " + match.score());
+        System.out.println("Expected score when the player scores a spare in the last frame and gets an extra attempt is = 273");
+        System.out.println("Actual score when the player scores a spare in the last frame and gets an extra attempt is = " + match.score() + "\n");
     }
 
-    //Scenario: Last frame with no Spares and Strikes.
-    public static void scoreWhenThePlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch() {
+    //Scenario 7: Match of 10 frames with no Spares and Strikes.
+    public static void scoreWhenPlayerNeverGotAnySparesOrStrikesDuringTheEntireMatch() {
 
         Match match = new Match(10, 10);
 
@@ -151,10 +152,10 @@ public class BowlingGame {
         match.roll(2);
 
         System.out.println("Expected score when the player never got any spares or strikes during the entire match is = 57");
-        System.out.println("Actual score when the player never got any spares or strikes during the entire match is = " + match.score());
+        System.out.println("Actual score when the player never got any spares or strikes during the entire match is = " + match.score() + "\n");
     }
 
-    //Scenario: Last frame not a Strike nor a Spare. But the match has a few Strikes and Spares in the other frames
+    //Scenario 8: Last frame not a Strike nor a Spare. But the match has a few Strikes and Spares in the other frames.
     public static void scoreWhenPlayerHitsFewStrikesAndSpares() {
 
         Match match = new Match(10, 10);
@@ -178,8 +179,8 @@ public class BowlingGame {
         match.roll(4);
         match.roll(4);
 
-        System.out.println("Expected score when the olayer hits few Strikes and Spares is = 100");
-        System.out.println("Actual score when the olayer hits few Strikes and Spares is = " + match.score());
+        System.out.println("Expected score when the player hits a few Strikes and Spares is = 100");
+        System.out.println("Actual score when the player hits a few Strikes and Spares is = " + match.score() + "\n");
 
     }
 }

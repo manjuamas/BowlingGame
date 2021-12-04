@@ -3,52 +3,69 @@ import java.util.List;
 
 public class Match {
 
-    int maximumAttempts;
+    //How may frames are there in a single match
+    int totalFrames;
+
+    //Total pins player gets to knock down in a frame
     int pinsInAFrame;
-    List<Integer> scoreAttempts;
+
+    //Maximum attempts if the player never scored a strike in the entire match
+    int maximumAttempts;
+
+    List<Integer> attempts;
     List<Frame> frames;
     int gameScore;
 
-    public Match(int frames, int pinsInAFrame) {
+    //Lets you customize a match with number of frames and number of pins in a frame.
+    // Wasn't a requirement for this game, but I thought it would be cool to implement it.
+    public Match(int totalFrames, int pinsInAFrame) {
         gameScore = 0;
         this.pinsInAFrame = pinsInAFrame;
-        this.maximumAttempts = frames * pinsInAFrame;
-        this.scoreAttempts = new ArrayList<>();
+        this.totalFrames = totalFrames;
+        this.maximumAttempts = totalFrames * pinsInAFrame;
+        this.attempts = new ArrayList<>();
         this.frames = new ArrayList<>();
     }
 
     public void roll(int noOfPins) {
 
+        // Player shouldn't be able to roll if all attempts have been attempted.
+        // That is, even if the player keeps playing after all the attempts are attempted,those will not be calculated for the final score.
+        if (attempts.size() == maximumAttempts) {
+            return;
+        }
+
+        //In a case of a strike roll count should reduce by one, how can you knock down more pins if there are no pins to knock down!
         if (noOfPins == pinsInAFrame) {
             maximumAttempts = maximumAttempts - 1;
         }
-        scoreAttempts.add(noOfPins);
+
+        //Keep storing player's score attempts
+        attempts.add(noOfPins);
     }
 
     public List<Frame> generateFrames() {
 
-        int extra1;
-        int extra2;
+        //Travers through all the attempts and generate the frames.
+        //Even though we limit the player not to play more when all the attempts are played in roll(),
+        // this method too adds a validation by checking if the total frame count doesn't exceed so the number of frames for the match is as expected
+        for (int i = 0; i < attempts.size() && frames.size() < totalFrames; i++) {
 
-        for (int i = 0; i < scoreAttempts.size() && i <= maximumAttempts; i++) {
-
-            Frame frame = new Frame(pinsInAFrame);
-            extra1 = 0;
-            extra2 = 0;
-
+            Frame frame = new Frame(pinsInAFrame, frames.size() + 1);
             frame.pinsFirstAttempt = setScore(i);
 
             if (frame.isAStrike()) {
-                extra1 = setScore(i + 1);
-                extra2 = setScore(i + 2);
+                frame.extra1 = setScore(i + 1);
+                frame.extra2 = setScore(i + 2);
             } else {
                 frame.pinsSecondAttempt = setScore(i + 1);
                 if (frame.isASpare()) {
-                    extra1 = setScore(i + 2);
-                    extra2 = setScore(i + 3);
+                    frame.extra1 = setScore(i + 2);
                 }
+                //Except for a strike, the next frame should always start after 2 attempts
+                i = i + 1;
             }
-            frame.setScore(extra1, extra2);
+            frame.calculateFrameScore();
             frames.add(frame);
         }
 
@@ -60,16 +77,17 @@ public class Match {
         generateFrames();
 
         for (Frame frame : frames) {
-            gameScore = gameScore + frame.getScore();
+            frame.printFrame();
+            gameScore = gameScore + frame.score;
         }
-
         return gameScore;
     }
 
     public int setScore(int attempt) {
 
-        if (scoreAttempts != null && attempt < scoreAttempts.size()) {
-            return scoreAttempts.get(attempt);
+        //Just so you don't get an IndexOutOfBoundsException if the player doesn't want to attempt extras after a strike or a Spare
+        if (attempts != null && attempt < attempts.size()) {
+            return attempts.get(attempt);
         }
         return 0;
     }
